@@ -18,12 +18,12 @@ import java.util.List;
 public class SlackParsedCommand {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private String slackNamePattern;
-    private UserData fromUserData;
+    private UserDTO fromUserDTO;
     private String text;
-    private List<UserData> usersInText;
+    private List<UserDTO> usersInText;
 
-    public SlackParsedCommand(UserData fromUserData, String text, List<UserData> usersInText) {
-        this.fromUserData = fromUserData;
+    public SlackParsedCommand(UserDTO fromUserDTO, String text, List<UserDTO> usersInText) {
+        this.fromUserDTO = fromUserDTO;
         this.text = text;
         this.usersInText = usersInText;
         slackNamePattern = Utils.getProperty(
@@ -32,14 +32,14 @@ public class SlackParsedCommand {
         );
         logger.debug("SlackParsedCommand created with parameters: " +
                         "fromSlackName: {} text: {} userCountInText {} users: {}",
-                fromUserData, text, usersInText.size(), usersInText.toString());
+                fromUserDTO, text, usersInText.size(), usersInText.toString());
     }
 
-    public List<UserData> getAllUsersFromText() {
+    public List<UserDTO> getAllUsersFromText() {
         return usersInText;
     }
 
-    public UserData getFirstUserFromText() {
+    public UserDTO getFirstUserFromText() {
         if (usersInText.size() == 0) {
             logger.warn("The text: '{}' doesn't contain any slack names", text);
             throw new WrongCommandFormatException(String.format("The text '%s' doesn't contain any slack names", text));
@@ -54,8 +54,8 @@ public class SlackParsedCommand {
         return result;
     }
 
-    public UserData getFromUserData() {
-        return fromUserData;
+    public UserDTO getFromUserDTO() {
+        return fromUserDTO;
     }
 
     public String getText() {

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.juja.slack.command.hanler.model.SlackParsedCommand;
-import ua.com.juja.slack.command.hanler.model.UserData;
+import ua.com.juja.slack.command.hanler.model.UserDTO;
 import ua.com.juja.slack.command.hanler.utils.Utils;
 
 import javax.inject.Inject;
@@ -44,19 +44,19 @@ public class SlackNameHandlerService {
             fromUserSlackName = "@" + fromUserSlackName;
             logger.debug("add '@' to slack name [{}]", fromUserSlackName);
         }
-        Map<String, UserData> usersMap = receiveUsersMap(fromUserSlackName, text);
-        UserData fromUserData = usersMap.get(fromUserSlackName);
+        Map<String, UserDTO> usersMap = receiveUsersMap(fromUserSlackName, text);
+        UserDTO fromUserDTO = usersMap.get(fromUserSlackName);
         usersMap.remove(fromUserSlackName);
 
-        return new SlackParsedCommand(fromUserData, text, new ArrayList<>(usersMap.values()));
+        return new SlackParsedCommand(fromUserDTO, text, new ArrayList<>(usersMap.values()));
     }
 
-    private Map<String, UserData> receiveUsersMap(String fromSlackName, String text) {
+    private Map<String, UserDTO> receiveUsersMap(String fromSlackName, String text) {
         List<String> slackNames = receiveAllSlackNames(text);
         slackNames.add(fromSlackName);
         logger.debug("added \"fromSlackName\" slack name to request: [{}]", fromSlackName);
         logger.debug("send slack names: {} to user service", slackNames);
-        List<UserData> users = userBySlackName.findUsersBySlackNames(slackNames);
+        List<UserDTO> users = userBySlackName.findUsersBySlackNames(slackNames);
         return users.stream()
                 .collect(Collectors.toMap(user -> user.getSlack(), user -> user, (e1, e2) -> e1, LinkedHashMap::new));
     }

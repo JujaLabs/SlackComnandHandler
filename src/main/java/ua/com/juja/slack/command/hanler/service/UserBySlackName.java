@@ -2,7 +2,7 @@ package ua.com.juja.slack.command.hanler.service;
 
 
 
-import ua.com.juja.slack.command.hanler.model.UserData;
+import ua.com.juja.slack.command.hanler.model.UserDTO;
 
 import java.util.List;
 
@@ -10,5 +10,5 @@ import java.util.List;
  * @author Nikolay Horushko
  */
 public interface UserBySlackName {
-    List<UserData> findUsersBySlackNames(List<String> slackNames);
+    List<UserDTO> findUsersBySlackNames(List<String> slackNames);
 }

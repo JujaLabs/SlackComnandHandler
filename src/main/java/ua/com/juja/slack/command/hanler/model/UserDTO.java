@@ -12,7 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class UserData {
+public class UserDTO {
     private String uuid;
     private String slack;
 }
