@@ -1,4 +1,4 @@
-package ua.com.juja.slack.command.hanler.model;
+package ua.com.juja.slack.command.handler.model;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class UserDTO {
-    private String uuid;
-    private String slack;
+public class UserData {
+    private final String uuid;
+    private final String slack;
 }

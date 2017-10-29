@@ -1,11 +1,10 @@
-package ua.com.juja.slack.command.hanler.model;
+package ua.com.juja.slack.command.handler.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.com.juja.slack.command.hanler.exception.WrongCommandFormatException;
-import ua.com.juja.slack.command.hanler.utils.Utils;
+import ua.com.juja.slack.command.handler.exception.ParseSlackCommandException;
 
 
 import java.util.List;
@@ -17,32 +16,29 @@ import java.util.List;
 @EqualsAndHashCode
 public class SlackParsedCommand {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private String slackNamePattern;
-    private UserDTO fromUserDTO;
+    private final String slackNamePattern = "@([a-zA-z0-9\\.\\_\\-]){1,21}";
+    private UserData fromUserData;
     private String text;
-    private List<UserDTO> usersInText;
+    private List<UserData> usersInText;
 
-    public SlackParsedCommand(UserDTO fromUserDTO, String text, List<UserDTO> usersInText) {
-        this.fromUserDTO = fromUserDTO;
+    public SlackParsedCommand(UserData fromUserData, String text, List<UserData> usersInText) {
+        this.fromUserData = fromUserData;
         this.text = text;
         this.usersInText = usersInText;
-        slackNamePattern = Utils.getProperty(
-                "application.properties",
-                "slackNamePattern"
-        );
+
         logger.debug("SlackParsedCommand created with parameters: " +
                         "fromSlackName: {} text: {} userCountInText {} users: {}",
-                fromUserDTO, text, usersInText.size(), usersInText.toString());
+                fromUserData, text, usersInText.size(), usersInText.toString());
     }
 
-    public List<UserDTO> getAllUsersFromText() {
+    public List<UserData> getAllUsersFromText() {
         return usersInText;
     }
 
-    public UserDTO getFirstUserFromText() {
+    public UserData getFirstUserFromText() {
         if (usersInText.size() == 0) {
             logger.warn("The text: '{}' doesn't contain any slack names", text);
-            throw new WrongCommandFormatException(String.format("The text '%s' doesn't contain any slack names", text));
+            throw new ParseSlackCommandException(String.format("The text '%s' doesn't contain any slack names", text));
         } else {
             return usersInText.get(0);
         }
@@ -54,8 +50,8 @@ public class SlackParsedCommand {
         return result;
     }
 
-    public UserDTO getFromUserDTO() {
-        return fromUserDTO;
+    public UserData getFromUser() {
+        return fromUserData;
     }
 
     public String getText() {
@@ -65,4 +61,6 @@ public class SlackParsedCommand {
     public int getUserCountInText() {
         return usersInText.size();
     }
+
+    //https://github.com/ksergey12/keepers-slack-bot/blob/implement-tokens/src/main/java/ua/com/juja/microservices/keepers/slackbot/model/SlackParsedCommand.java
 }

@@ -1,11 +1,10 @@
-package ua.com.juja.slack.command.hanler.service;
+package ua.com.juja.slack.command.handler.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ua.com.juja.slack.command.hanler.model.SlackParsedCommand;
-import ua.com.juja.slack.command.hanler.model.UserDTO;
-import ua.com.juja.slack.command.hanler.utils.Utils;
+import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
+import ua.com.juja.slack.command.handler.model.UserData;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -26,37 +25,34 @@ public class SlackNameHandlerService {
 
     private  final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     private UserBySlackName userBySlackName;
 
-    private final String slackNamePattern;
+    private final String slackNamePattern = "@([a-zA-z0-9\\.\\_\\-]){1,21}";
 
     @Inject
     public SlackNameHandlerService(UserBySlackName userBySlackName) {
         this.userBySlackName = userBySlackName;
-        slackNamePattern = Utils.getProperty(
-                "application.properties",
-                "slackNamePattern"
-        );
     }
 
-    public SlackParsedCommand createSlackParsedCommand(String fromUserSlackName, String text) {
+    public  SlackParsedCommand createSlackParsedCommand(String fromUserSlackName, String text) {
         if (!fromUserSlackName.startsWith("@")) {
             fromUserSlackName = "@" + fromUserSlackName;
             logger.debug("add '@' to slack name [{}]", fromUserSlackName);
         }
-        Map<String, UserDTO> usersMap = receiveUsersMap(fromUserSlackName, text);
-        UserDTO fromUserDTO = usersMap.get(fromUserSlackName);
+        Map<String, UserData> usersMap = receiveUsersMap(fromUserSlackName, text);
+        UserData fromUserData = usersMap.get(fromUserSlackName);
         usersMap.remove(fromUserSlackName);
 
-        return new SlackParsedCommand(fromUserDTO, text, new ArrayList<>(usersMap.values()));
+        return new SlackParsedCommand(fromUserData, text, new ArrayList<>(usersMap.values()));
     }
 
-    private Map<String, UserDTO> receiveUsersMap(String fromSlackName, String text) {
+    private Map<String, UserData> receiveUsersMap(String fromSlackName, String text) {
         List<String> slackNames = receiveAllSlackNames(text);
         slackNames.add(fromSlackName);
         logger.debug("added \"fromSlackName\" slack name to request: [{}]", fromSlackName);
         logger.debug("send slack names: {} to user service", slackNames);
-        List<UserDTO> users = userBySlackName.findUsersBySlackNames(slackNames);
+        List<UserData> users = userBySlackName.findUsersBySlackNames(slackNames);
         return users.stream()
                 .collect(Collectors.toMap(user -> user.getSlack(), user -> user, (e1, e2) -> e1, LinkedHashMap::new));
     }

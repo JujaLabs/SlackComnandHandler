@@ -1,7 +1,7 @@
-package ua.com.juja.slack.command.hanler.utils;
+package ua.com.juja.slack.command.handler.utils;
 
 
-import ua.com.juja.slack.command.hanler.model.SlackParsedCommand;
+import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
 
 import java.io.IOException;
 import java.util.Properties;
