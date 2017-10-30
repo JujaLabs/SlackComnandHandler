@@ -3,6 +3,7 @@ package ua.com.juja.slack.command.handler.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ua.com.juja.slack.command.handler.UserBySlackName;
 import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
 import ua.com.juja.slack.command.handler.model.UserData;
 
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 public class SlackNameHandlerService {
 
     private  final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     private UserBySlackName userBySlackName;
 

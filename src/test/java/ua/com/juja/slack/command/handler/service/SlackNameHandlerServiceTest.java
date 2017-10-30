@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ua.com.juja.slack.command.handler.UserBySlackName;
 import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
 import ua.com.juja.slack.command.handler.model.UserData;
 

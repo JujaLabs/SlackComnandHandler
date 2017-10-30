@@ -1,4 +1,4 @@
-package ua.com.juja.slack.command.handler.service;
+package ua.com.juja.slack.command.handler;
 
 
 
