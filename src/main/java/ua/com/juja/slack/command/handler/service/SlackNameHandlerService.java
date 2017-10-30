@@ -40,6 +40,7 @@ public class SlackNameHandlerService {
             fromUserSlackName = "@" + fromUserSlackName;
             logger.debug("add '@' to slack name [{}]", fromUserSlackName);
         }
+        //todo в нем удаляется фромюзер из списка. И если команда подразумевает что фромюзер может быть в тексте - получается косяк
         Map<String, UserData> usersMap = receiveUsersMap(fromUserSlackName, text);
         UserData fromUserData = usersMap.get(fromUserSlackName);
         usersMap.remove(fromUserSlackName);
