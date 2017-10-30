@@ -1,5 +1,6 @@
 package ua.com.juja.slack.command.handler.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,8 @@ import java.util.stream.Collectors;
  * @author Konstantin Sergey
  */
 @Service
+@Slf4j
 public class SlackNameHandlerService {
-
-    private  final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private UserBySlackName userBySlackName;
 
@@ -38,7 +38,7 @@ public class SlackNameHandlerService {
     public  SlackParsedCommand createSlackParsedCommand(String fromUserSlackName, String text) {
         if (!fromUserSlackName.startsWith("@")) {
             fromUserSlackName = "@" + fromUserSlackName;
-            logger.debug("add '@' to slack name [{}]", fromUserSlackName);
+            log.debug("add '@' to slack name [{}]", fromUserSlackName);
         }
         //todo в нем удаляется фромюзер из списка. И если команда подразумевает что фромюзер может быть в тексте - получается косяк
         Map<String, UserData> usersMap = receiveUsersMap(fromUserSlackName, text);
@@ -51,8 +51,8 @@ public class SlackNameHandlerService {
     private Map<String, UserData> receiveUsersMap(String fromSlackName, String text) {
         List<String> slackNames = receiveAllSlackNames(text);
         slackNames.add(fromSlackName);
-        logger.debug("added \"fromSlackName\" slack name to request: [{}]", fromSlackName);
-        logger.debug("send slack names: {} to user service", slackNames);
+        log.debug("added \"fromSlackName\" slack name to request: [{}]", fromSlackName);
+        log.debug("send slack names: {} to user service", slackNames);
         List<UserData> users = userBySlackName.findUsersBySlackNames(slackNames);
         return users.stream()
                 .collect(Collectors.toMap(user -> user.getSlack(), user -> user, (e1, e2) -> e1, LinkedHashMap::new));
@@ -65,7 +65,7 @@ public class SlackNameHandlerService {
         while (matcher.find()) {
             result.add(matcher.group());
         }
-        logger.debug("Recieved slack names: {} from text:", result.toString(), text);
+        log.debug("Recieved slack names: {} from text:", result.toString(), text);
         return result;
     }
 }
