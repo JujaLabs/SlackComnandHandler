@@ -29,6 +29,7 @@ public class SlackNameHandlerServiceTest {
     private UserData userFrom;
     private UserData user1;
     private UserData user2;
+    private UserData user3;
 
     @Before
     public void setup() {
@@ -36,6 +37,7 @@ public class SlackNameHandlerServiceTest {
         userFrom = new UserData("AAA000", "@slackFrom");
         user1 = new UserData("AAA111", "@slack1");
         user2 = new UserData("AAA222", "@slack2");
+        user3 = new UserData("AAA333", "@slack3");
         slackNameHandlerService = new SlackNameHandlerService(userBySlackName);
     }
 
@@ -49,6 +51,23 @@ public class SlackNameHandlerServiceTest {
 
         when(userBySlackName.findUsersBySlackNames(anyListOf(String.class))).thenReturn(responseFromUserService);
 
+        //when
+        SlackParsedCommand actual = slackNameHandlerService.createSlackParsedCommand(userFrom.getSlack(), text);
+        //then
+        verify(userBySlackName, times(1)).findUsersBySlackNames(requestToUserService);
+        verifyNoMoreInteractions(userBySlackName);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getSlackParsedCommandThreeSlackInText() throws Exception {
+        //given
+        String text = "text " + user1.getSlack() + " TexT " + user2.getSlack() + " text. " + user3.getSlack();
+        List<String> requestToUserService = Arrays.asList(user1.getSlack(), user2.getSlack(), user3.getSlack(), userFrom.getSlack());
+        List<UserData> responseFromUserService = Arrays.asList(userFrom, user1, user3, user2);
+        SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, user2, user3));
+
+        when(userBySlackName.findUsersBySlackNames(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
         SlackParsedCommand actual = slackNameHandlerService.createSlackParsedCommand(userFrom.getSlack(), text);
         //then

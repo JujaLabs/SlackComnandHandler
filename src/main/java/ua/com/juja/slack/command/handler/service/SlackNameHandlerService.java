@@ -1,19 +1,14 @@
 package ua.com.juja.slack.command.handler.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.juja.slack.command.handler.UserBySlackName;
 import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
 import ua.com.juja.slack.command.handler.model.UserData;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,25 +35,46 @@ public class SlackNameHandlerService {
             fromUserSlackName = "@" + fromUserSlackName;
             log.debug("add '@' to slack name [{}]", fromUserSlackName);
         }
-        //todo в нем удаляется фромюзер из списка. И если команда подразумевает что фромюзер может быть в тексте - получается косяк
-        Map<String, UserData> usersMap = receiveUsersMap(fromUserSlackName, text);
-        UserData fromUserData = usersMap.get(fromUserSlackName);
-        usersMap.remove(fromUserSlackName);
 
-        return new SlackParsedCommand(fromUserData, text, new ArrayList<>(usersMap.values()));
+        List<String> slackNamesInText = receiveSlackNamesFromText(text);
+
+        List<String> allSlackNames = new ArrayList<>(slackNamesInText);
+        allSlackNames.add(fromUserSlackName);
+
+        List<UserData> allUsers = receiveUsers(allSlackNames);
+
+        UserData fromUser = getFromUser(allUsers, fromUserSlackName);
+
+        List<UserData> usersInText = deleteFromUser(allUsers, fromUser);
+
+        sortUsersByOrderInText(usersInText, slackNamesInText);
+
+        return new SlackParsedCommand(fromUser, text, usersInText);
     }
 
-    private Map<String, UserData> receiveUsersMap(String fromSlackName, String text) {
-        List<String> slackNames = receiveAllSlackNames(text);
-        slackNames.add(fromSlackName);
-        log.debug("added \"fromSlackName\" slack name to request: [{}]", fromSlackName);
-        log.debug("send slack names: {} to user service", slackNames);
-        List<UserData> users = userBySlackName.findUsersBySlackNames(slackNames);
+    private void sortUsersByOrderInText(List<UserData> usersInText, List<String> slackNameInText){
+        usersInText.sort(Comparator.comparingInt(user -> slackNameInText.indexOf(user.getSlack())));
+    }
+
+    private List<UserData> deleteFromUser(List<UserData> allUsersList, UserData fromUser){
+        return allUsersList.stream()
+                .filter(user -> user != fromUser)
+                .collect(Collectors.toList());
+    }
+
+    private UserData getFromUser(List<UserData> users, String fromUserSlackName){
         return users.stream()
-                .collect(Collectors.toMap(user -> user.getSlack(), user -> user, (e1, e2) -> e1, LinkedHashMap::new));
+                .filter(user -> user.getSlack().equals(fromUserSlackName))
+                .findFirst()
+                .get();
     }
 
-    private List<String> receiveAllSlackNames(String text) {
+    private List<UserData> receiveUsers(List<String> allSlackNames) {
+        log.debug("send slack names: {} to user service", allSlackNames);
+        return userBySlackName.findUsersBySlackNames(allSlackNames);
+    }
+
+    private List<String> receiveSlackNamesFromText(String text) {
         List<String> result = new ArrayList<>();
         Pattern pattern = Pattern.compile(slackNamePattern);
         Matcher matcher = pattern.matcher(text);
