@@ -7,7 +7,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import ua.com.juja.slack.command.handler.exception.ParseSlackCommandException;
 
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
