@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class SlackNameHandlerService {
+public class SlackCommandHandlerService {
 
     private final String slackNamePattern = "@([a-zA-z0-9\\.\\_\\-]){1,21}";
     private UserBySlackName userBySlackName;
 
     @Inject
-    public SlackNameHandlerService(UserBySlackName userBySlackName) {
+    public SlackCommandHandlerService(UserBySlackName userBySlackName) {
         this.userBySlackName = userBySlackName;
     }
 
