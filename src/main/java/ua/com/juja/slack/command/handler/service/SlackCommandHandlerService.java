@@ -74,7 +74,7 @@ public class SlackCommandHandlerService {
             UserData fromUser;
             List<UserData> usersInText;
 
-            if (slackCommand.hasFromUserSlackNameInText) {
+            if (slackCommand.isHasFromUserSlackNameInText()) {
                 usersInText = receiveUsersBySlackNames(slackCommand.getAllSlackNames());
                 sortUsersByOrderInText(usersInText, slackCommand.getSlackNamesInText());
                 fromUser = getFromUser(usersInText, slackCommand.getFromUserSlackName());

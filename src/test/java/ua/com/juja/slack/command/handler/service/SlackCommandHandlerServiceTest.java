@@ -129,4 +129,22 @@ public class SlackCommandHandlerServiceTest {
         //then
         assertEquals("@slackFrom", actual.getFromUser().getSlack());
     }
+
+    @Test
+    public void getSlackParsedCommandIfTextContainsFromUserSlackName() throws Exception {
+        //given
+        final String text = "text " + user1.getSlack() + " TexT text. " + userFrom.getSlack();
+        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user1);
+        final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, userFrom));
+
+        when(userBySlackName.findUsersBySlackNames(anyListOf(String.class))).thenReturn(responseFromUserService);
+
+        //when
+        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlack(), text);
+        //then
+        verify(userBySlackName, times(1)).findUsersBySlackNames(captor.capture());
+        assertThat(captor.getValue(), containsInAnyOrder("@slack1", "@slackFrom"));
+        verifyNoMoreInteractions(userBySlackName);
+        assertEquals(expected, actual);
+    }
 }
