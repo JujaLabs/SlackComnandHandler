@@ -71,7 +71,7 @@ public class SlackParsedCommand {
         return result;
     }
 
-    public Map<String, UserData> getUsersWithTokens(Set<String> tokens) {
+    public Map<String, UserData> getUsersWithTokens(Set<String> tokens) throws ParseSlackCommandException {
         log.debug("Recieve tokens: [{}] for searching. in the text: [{}]", tokens, text);
         List<Token> sortedTokenList = receiveTokensWithPositionInText(tokens);
         Map<String, UserData> result = findSlackNamesForTokensInText(sortedTokenList);

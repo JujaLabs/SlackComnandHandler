@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 public class SlackCommandHandlerService {
 
     private final String escapedSlackUserIdAndName = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
-    private UserBySlackName userBySlackName;
+    private UserBySlackName userBySlackUserId;
 
     @Inject
-    public SlackCommandHandlerService(UserBySlackName userBySlackName) {
-        this.userBySlackName = userBySlackName;
+    public SlackCommandHandlerService(UserBySlackName userBySlackUserId) {
+        this.userBySlackUserId = userBySlackUserId;
     }
 
     public SlackParsedCommand createSlackParsedCommand(String fromUserSlackUserId, String text) {
@@ -92,7 +92,11 @@ public class SlackCommandHandlerService {
         private List<UserData> receiveUsersBySlackUserId(Set<String> allSlackUserId) {
 
             log.debug("send slack names: {} to user service", allSlackUserId);
-            return userBySlackName.findUsersBySlackUserId(new ArrayList<>(allSlackUserId));
+            List<UserData> result = userBySlackUserId.findUsersBySlackUserId(new ArrayList<>(allSlackUserId));
+            if(allSlackUserId.size() != result.size()){
+                throw new IllegalArgumentException(String.format("Error. Sent [%d] slackUsersId to UserService, but received [%d] users [%s]", allSlackUserId.size(), result.size(), result.toString()));
+            }
+            return result;
         }
 
         private UserData getFromUser(List<UserData> usersInText, String fromUserSlackUserId) {

@@ -1,7 +1,9 @@
 package ua.com.juja.slack.command.handler.service;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -29,7 +31,9 @@ public class SlackCommandHandlerServiceTest {
     @Mock
     private UserBySlackName userBySlackName;
     @Captor
-    ArgumentCaptor<List<String>> captor;
+    private ArgumentCaptor<List<String>> captor;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private SlackCommandHandlerService slackCommandHandlerService;
 
@@ -134,5 +138,21 @@ public class SlackCommandHandlerServiceTest {
         assertThat(captor.getValue(), containsInAnyOrder("U1DR97JLA", "UFDR97JLA"));
         verifyNoMoreInteractions(userBySlackName);
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getSlackParsedCommandTwoSlackInText2() throws Exception {
+        //given
+        final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text.";
+        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user2);
+        final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, user2));
+
+        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        //then
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Sent [3] slackUsersId to UserService, but received [2] users");
+
+        //when
+        slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
     }
 }
