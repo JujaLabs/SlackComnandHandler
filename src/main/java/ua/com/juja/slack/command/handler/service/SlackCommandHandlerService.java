@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SlackCommandHandlerService {
 
-    private final String escapedUserInSlackCommand = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
+    private final String escapedSlackUserIdAndName = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
     private UserBySlackName userBySlackName;
 
     @Inject
@@ -30,35 +30,39 @@ public class SlackCommandHandlerService {
         this.userBySlackName = userBySlackName;
     }
 
-    public SlackParsedCommand createSlackParsedCommand(String fromUserSlackId, String text) {
-        SlackCommand slackCommand = new SlackCommand(fromUserSlackId, text);
-        return new SlackCommandToSlackParsedCommandConverter().convert(slackCommand);
+    public SlackParsedCommand createSlackParsedCommand(String fromUserSlackUserId, String text) {
+        log.debug("Start create slackParsedCommand fromUserSlackUserId: [{}] text: [{}]", fromUserSlackUserId, text);
+        SlackCommand slackCommand = new SlackCommand(fromUserSlackUserId, text);
+        SlackParsedCommand result = new SlackCommandToSlackParsedCommandConverter().convert(slackCommand);
+        log.debug("created SlackParsedCommand [{}]", result.toString());
+        return result;
+
     }
 
     @Getter
     private class SlackCommand {
-        private String fromUserSlackId;
+        private String fromUserSlackUserId;
         private String text;
         private List<String> slackUserIdInText;
         private Set<String> allSlackUserId;
-        private boolean hasFromUserSlackNameInText;
+        private boolean hasFromUserIdInText;
 
-        public SlackCommand(String fromUserSlackId, String text) {
-            this.fromUserSlackId = fromUserSlackId;
+        public SlackCommand(String fromUserSlackUserId, String text) {
+            this.fromUserSlackUserId = fromUserSlackUserId;
             this.text = text;
             slackUserIdInText = receiveSlackUserIdFromText(text);
-            hasFromUserSlackNameInText = slackUserIdInText.contains(fromUserSlackId);
+            hasFromUserIdInText = slackUserIdInText.contains(fromUserSlackUserId);
             allSlackUserId = new HashSet<>(slackUserIdInText);
-            allSlackUserId.add(fromUserSlackId);
+            allSlackUserId.add(fromUserSlackUserId);
         }
 
         private List<String> receiveSlackUserIdFromText(String text) {
             List<String> result = new ArrayList<>();
-            Pattern pattern = Pattern.compile(escapedUserInSlackCommand);
+            Pattern pattern = Pattern.compile(escapedSlackUserIdAndName);
             Matcher matcher = pattern.matcher(text);
             while (matcher.find()) {
-                String escapedUser = matcher.group();
-                result.add(escapedUser.substring(escapedUser.indexOf('@') + 1, escapedUser.indexOf('|')));
+                String slackUserIdAndName = matcher.group();
+                result.add(slackUserIdAndName.substring(slackUserIdAndName.indexOf('@') + 1, slackUserIdAndName.indexOf('|')));
             }
             log.debug("Received slack user id: {} from text:", result.toString(), text);
             return result;
@@ -71,15 +75,15 @@ public class SlackCommandHandlerService {
             UserData fromUser;
             List<UserData> usersInText;
 
-            if (slackCommand.isHasFromUserSlackNameInText()) {
+            if (slackCommand.isHasFromUserIdInText()) {
                 usersInText = receiveUsersBySlackUserId(slackCommand.getAllSlackUserId());
                 sortUsersByOrderInText(usersInText, slackCommand.getSlackUserIdInText());
-                fromUser = getFromUser(usersInText, slackCommand.getFromUserSlackId());
+                fromUser = getFromUser(usersInText, slackCommand.getFromUserSlackUserId());
                 return new SlackParsedCommand(fromUser, slackCommand.getText(), usersInText);
             } else {
                 List<UserData> allUsers = receiveUsersBySlackUserId(slackCommand.getAllSlackUserId());
-                fromUser = getFromUser(allUsers, slackCommand.getFromUserSlackId());
-                usersInText = deleteFromUser(allUsers, slackCommand.getFromUserSlackId());
+                fromUser = getFromUser(allUsers, slackCommand.getFromUserSlackUserId());
+                usersInText = deleteFromUser(allUsers, slackCommand.getFromUserSlackUserId());
                 sortUsersByOrderInText(usersInText, slackCommand.getSlackUserIdInText());
                 return new SlackParsedCommand(fromUser, slackCommand.getText(), usersInText);
             }

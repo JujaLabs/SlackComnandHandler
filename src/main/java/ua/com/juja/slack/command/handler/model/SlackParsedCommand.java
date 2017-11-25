@@ -3,7 +3,6 @@ package ua.com.juja.slack.command.handler.model;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import ua.com.juja.slack.command.handler.exception.ParseSlackCommandException;
 
@@ -12,9 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * @author Nikolay Horushko
  * @author Konstantin Sergey
  */
-@ToString(exclude = {"slackNamePattern", "log"})
 @EqualsAndHashCode
 @Slf4j
 public class SlackParsedCommand {
@@ -29,11 +28,12 @@ public class SlackParsedCommand {
         this.usersInText = usersInText;
 
         log.debug("SlackParsedCommand created with parameters: " +
-                        "fromSlackName: {} text: {} userCountInText {} users: {}",
+                        "fromSlackName: [{}] text: [{}] userCountInText [{}] usersInText: [{}]",
                 fromUserData, text, usersInText.size(), usersInText.toString());
     }
 
-    public List<UserData> getAllUsersFromText() {
+    public List<UserData> getAllUsersInText() {
+        log.debug("SlackParsedCommand get all users in text {}", usersInText.toString());
         return usersInText;
     }
 
@@ -42,32 +42,41 @@ public class SlackParsedCommand {
             log.warn("The text: '{}' doesn't contain any slack names", text);
             throw new ParseSlackCommandException(String.format("The text '%s' doesn't contain any slack names", text));
         } else {
-            return usersInText.get(0);
+            UserData result = usersInText.get(0);
+            log.debug("SlackParsedCommand get firstUser [{}] from text [{}]", result, text);
+            return result;
         }
     }
 
     public String getTextWithoutSlackNames() {
         String result = text.replaceAll(escapedUserInSlackCommand, "");
         result = result.replaceAll("\\s+", " ").trim();
+        log.debug("SlackParsedCommand get text without slack names [{}] original text [{}]", result, text);
         return result;
     }
 
     public UserData getFromUser() {
+        log.debug("SlackParsedCommand get from User [{}]", fromUserData);
         return fromUserData;
     }
 
     public String getText() {
+        log.debug("SlackParsedCommand get text [{}]", text);
         return text;
     }
 
     public int getUserCountInText() {
-        return usersInText.size();
+        int result = usersInText.size();
+        log.debug("SlackParsedCommand get user count in text [{}]", result);
+        return result;
     }
 
     public Map<String, UserData> getUsersWithTokens(Set<String> tokens) {
         log.debug("Recieve tokens: [{}] for searching. in the text: [{}]", tokens, text);
         List<Token> sortedTokenList = receiveTokensWithPositionInText(tokens);
-        return findSlackNamesForTokensInText(sortedTokenList);
+        Map<String, UserData> result = findSlackNamesForTokensInText(sortedTokenList);
+        log.debug("SlackParsedCommand recieved Users with Tokens [{}] from text [{}]", result.toString(), text);
+        return result;
     }
 
     private List<Token> receiveTokensWithPositionInText(Set<String> tokens) {

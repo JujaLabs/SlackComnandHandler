@@ -90,7 +90,7 @@ public class SlackParsedCommandTest {
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //when
-        List<UserData> result = slackParsedCommand.getAllUsersFromText();
+        List<UserData> result = slackParsedCommand.getAllUsersInText();
         //then
         assertEquals(usersInText, result);
     }
@@ -101,7 +101,7 @@ public class SlackParsedCommandTest {
         final String text = "text text text";
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, Collections.emptyList());
         //when
-        List<UserData> result = slackParsedCommand.getAllUsersFromText();
+        List<UserData> result = slackParsedCommand.getAllUsersInText();
         //then
         assertEquals(Collections.emptyList(), result);
     }
@@ -196,7 +196,6 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensWithTwoTokensSuccessfullCases() {
         //given
-        //<@U1DR97JLA|slackName1> <@U2DR97JLA|slackName2>
         final List<String> textList = new ArrayList<>(Arrays.asList(
                 "-t1 <@U1DR97JLA|slackName1> -t2 <@U2DR97JLA|slackName2>",
                 "-t2 <@U2DR97JLA|slackName2> -t1 <@U1DR97JLA|slackName1>",
