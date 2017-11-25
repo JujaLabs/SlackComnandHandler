@@ -141,16 +141,31 @@ public class SlackCommandHandlerServiceTest {
     }
 
     @Test
-    public void getSlackParsedCommandTwoSlackInText2() throws Exception {
+    public void shouldThrowExceptionIfReceiveWrongCountOfUsersFromUserService() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text.";
         final List<UserData> responseFromUserService = Arrays.asList(userFrom, user2);
-        final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, user2));
 
         when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //then
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Sent [3] slackUsersId to UserService, but received [2] users");
+
+        //when
+        slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfReceiveWrongUserFromUserService() throws Exception {
+        //given
+        final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text.";
+        final UserData wrongUser = new UserData("uuidW", "@UWDR97JLA");
+        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user1, wrongUser);
+
+        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        //then
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Error. User for slackUserId: [U2DR97JLA] didn't find in the List of Users");
 
         //when
         slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);

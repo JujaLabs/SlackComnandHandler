@@ -93,10 +93,29 @@ public class SlackCommandHandlerService {
 
             log.debug("send slack names: {} to user service", allSlackUserId);
             List<UserData> result = userBySlackUserId.findUsersBySlackUserId(new ArrayList<>(allSlackUserId));
-            if(allSlackUserId.size() != result.size()){
-                throw new IllegalArgumentException(String.format("Error. Sent [%d] slackUsersId to UserService, but received [%d] users [%s]", allSlackUserId.size(), result.size(), result.toString()));
-            }
+            checkReceivedUsers(allSlackUserId, result);
+
             return result;
+        }
+
+        private void checkReceivedUsers(Set<String> expectedSlackUserId, List<UserData> receivedUsers){
+
+            if(expectedSlackUserId.size() != receivedUsers.size()){
+                throw new IllegalArgumentException(String.format("Error. Sent [%d] slackUsersId to UserService, " +
+                        "but received [%d] users [%s]", expectedSlackUserId.size(), receivedUsers.size(),
+                        receivedUsers.toString()));
+            }
+
+            Set<String> actualSlackUserId = receivedUsers.stream()
+                    .map(userData -> userData.getSlackUserId())
+                    .collect(Collectors.toSet());
+
+            for (String slackUserId : expectedSlackUserId) {
+                if(!actualSlackUserId.contains(slackUserId)){
+                    throw new IllegalArgumentException(String.format("Error. User for slackUserId: [%s] didn't find " +
+                            "in the List of Users: %s", slackUserId, receivedUsers.toString()));
+                }
+            }
         }
 
         private UserData getFromUser(List<UserData> usersInText, String fromUserSlackUserId) {
