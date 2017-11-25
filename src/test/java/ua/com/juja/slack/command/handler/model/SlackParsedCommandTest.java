@@ -30,8 +30,8 @@ public class SlackParsedCommandTest {
     @Test
     public void getFirstUserInTextIfOneSlackNameInText() {
         //given
-        final String text = "text text @slack1 text";
-        final UserData userInText = new UserData("uuid1", "@slack1");
+        final String text = "text <@U1DR97JLA|slackName1> text";
+        final UserData userInText = new UserData("uuid1", "");
         final List<UserData> usersInText = Arrays.asList(userInText);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //when

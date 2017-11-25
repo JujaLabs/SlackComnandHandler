@@ -14,5 +14,5 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class UserData {
     private final String uuid;
-    private final String slack;
+    private final String slackUserId;
 }

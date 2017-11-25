@@ -96,19 +96,19 @@ public class SlackCommandHandlerService {
 
         private UserData getFromUser(List<UserData> usersInText, String fromUserSlackName) {
             return usersInText.stream()
-                    .filter(user -> user.getSlack().equals(fromUserSlackName))
+                    .filter(user -> user.getSlackUserId().equals(fromUserSlackName))
                     .findFirst()
                     .get();
         }
 
         private List<UserData> deleteFromUser(List<UserData> allUsersList, String fromUserSlackName) {
             return allUsersList.stream()
-                    .filter(user -> user.getSlack() != fromUserSlackName)
+                    .filter(user -> user.getSlackUserId() != fromUserSlackName)
                     .collect(Collectors.toList());
         }
 
         private void sortUsersByOrderInText(List<UserData> usersInText, List<String> slackNameInText) {
-            usersInText.sort(Comparator.comparingInt(user -> slackNameInText.indexOf(user.getSlack())));
+            usersInText.sort(Comparator.comparingInt(user -> slackNameInText.indexOf(user.getSlackUserId())));
         }
     }
 }
