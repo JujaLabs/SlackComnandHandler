@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SlackCommandHandlerService {
 
-    private final String slackNamePattern = "@([a-zA-z0-9\\.\\_\\-]){1,21}";
     private final String escapedUserInSlackCommand = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
     private UserBySlackName userBySlackName;
 

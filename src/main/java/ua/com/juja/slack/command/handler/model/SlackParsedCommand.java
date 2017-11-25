@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode
 @Slf4j
 public class SlackParsedCommand {
-    private final String slackNamePattern = "@([a-zA-z0-9\\.\\_\\-]){1,21}";
+    private final String escapedUserInSlackCommand = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
     private UserData fromUserData;
     private String text;
     private List<UserData> usersInText;
@@ -47,7 +47,7 @@ public class SlackParsedCommand {
     }
 
     public String getTextWithoutSlackNames() {
-        String result = text.replaceAll(slackNamePattern, "");
+        String result = text.replaceAll(escapedUserInSlackCommand, "");
         result = result.replaceAll("\\s+", " ").trim();
         return result;
     }
@@ -92,11 +92,11 @@ public class SlackParsedCommand {
 
         for (int index = 0; index < sortedTokenList.size(); index++) {
             Token currentToken = sortedTokenList.get(index);
-            Pattern pattern = Pattern.compile(slackNamePattern);
+            Pattern pattern = Pattern.compile(escapedUserInSlackCommand);
             Matcher matcher = pattern.matcher(text.substring(text.indexOf(currentToken.getToken())));
             if (matcher.find()) {
-                String foundedSlackName = matcher.group().trim();
-                int indexFoundedSlackName = text.indexOf(foundedSlackName);
+                String foundedEscapedUser = matcher.group().trim();
+                int indexFoundedSlackName = text.indexOf(foundedEscapedUser);
                 for (int j = index + 1; j < sortedTokenList.size(); j++) {
                     if (indexFoundedSlackName > sortedTokenList.get(j).getPositionInText()) {
                         log.warn("The text: [{}] doesn't contain slack name for token: [{}]",
@@ -105,7 +105,7 @@ public class SlackParsedCommand {
                                 "for token '%s'", text, currentToken.getToken()));
                     }
                 }
-                addFoundedSlackNameToResult(currentToken, foundedSlackName, result);
+                addFoundedSlackToResult(currentToken, foundedEscapedUser, result);
             } else {
                 log.warn("The text: [{}] doesn't contain slack name for token: [{}]",
                         text, sortedTokenList.get(index).getToken());
@@ -116,9 +116,9 @@ public class SlackParsedCommand {
         return result;
     }
 
-    private void addFoundedSlackNameToResult(Token currentToken, String foundedSlackName, Map<String, UserData> result) {
+    private void addFoundedSlackToResult(Token currentToken, String foundedSlackName, Map<String, UserData> result) {
         for (UserData item : usersInText) {
-            if (item.getSlackUserId().equals(foundedSlackName)) {
+            if (item.getSlackUserId().equals(foundedSlackName.substring(foundedSlackName.indexOf('@')+1, foundedSlackName.indexOf('|')))) {
                 log.debug("Found user: {} for token:", item, currentToken.getToken());
                 result.put(currentToken.getToken(), item);
             }

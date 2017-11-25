@@ -176,7 +176,7 @@ public class SlackParsedCommandTest {
     @Test
     public void getTextWithoutSlackNamesTrimSpaces() {
         //given
-        final String text = "    @slack text  <@U1DR97JLA|slackName1> text <@U1DR97JLA|slackName1>    ";
+        final String text = "    <@U1DR97JLA|slackName1> text  <@U1DR97JLA|slackName1> text <@U1DR97JLA|slackName1>    ";
         //when
         SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, Collections.emptyList());
         //then
