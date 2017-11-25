@@ -8,5 +8,5 @@ import java.util.List;
  * @author Nikolay Horushko
  */
 public interface UserBySlackName {
-    List<UserData> findUsersBySlackNames(List<String> slackNames);
+    List<UserData> findUsersBySlackUserId(List<String> slackNames);
 }

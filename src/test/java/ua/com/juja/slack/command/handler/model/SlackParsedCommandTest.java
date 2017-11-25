@@ -24,14 +24,14 @@ public class SlackParsedCommandTest {
 
     @Before
     public void setup() {
-        fromUser = new UserData("uuid0", "@from");
+        fromUser = new UserData("uuid0", "UFDR97JLA");
     }
 
     @Test
     public void getFirstUserInTextIfOneSlackNameInText() {
         //given
         final String text = "text <@U1DR97JLA|slackName1> text";
-        final UserData userInText = new UserData("uuid1", "");
+        final UserData userInText = new UserData("uuid1", "U1DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //when
@@ -43,10 +43,10 @@ public class SlackParsedCommandTest {
     @Test
     public void getFirstUserInTextIfSomeSlackNameInText() {
         //given
-        final String text = "text text @slack1 text @slack2 text @slack3";
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
-        final UserData userInText3 = new UserData("uuid3", "@slack3");
+        final String text = "text text <@U1DR97JLA|slackName1> text <@U2DR97JLA|slackName2> text <@U3DR97JLA|slackName3>";
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
+        final UserData userInText3 = new UserData("uuid3", "U3DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //when
@@ -58,8 +58,8 @@ public class SlackParsedCommandTest {
     @Test
     public void getFirstUserInTextIfOneSlackNameInTextWithoutSpace() {
         //given
-        final String text = "text text@slack1 text text";
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
+        final String text = "text text<@U1DR97JLA|slackName1> text text";
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //when
@@ -83,10 +83,10 @@ public class SlackParsedCommandTest {
     @Test
     public void getAllUsers() {
         //given
-        final String text = "text @slack3 text@slack2 text @slack1";
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
-        final UserData userInText3 = new UserData("uuid3", "@slack3");
+        final String text = "text <@U3DR97JLA|slackName3> text<@U2DR97JLA|slackName2> text <@U1DR97JLA|slackName1>";
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
+        final UserData userInText3 = new UserData("uuid3", "U3DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //when
@@ -131,8 +131,8 @@ public class SlackParsedCommandTest {
     @Test
     public void getUserCountIfOneUser() {
         //given
-        final String text = "text @slack1 text";
-        final List<UserData> usersInText = Arrays.asList(new UserData("uuid1", "@slack1"));
+        final String text = "text <@U1DR97JLA|slackName1> text";
+        final List<UserData> usersInText = Arrays.asList(new UserData("uuid1", "U1DR97JLA"));
         //when
         SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //then
@@ -152,10 +152,10 @@ public class SlackParsedCommandTest {
     @Test
     public void getUserCountIfManyUsers() {
         //given
-        final String text = "text @slack1 text @slack2 text @slack3";
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
-        final UserData userInText3 = new UserData("uuid3", "@slack3");
+        final String text = "text <@U1DR97JLA|slackName1> text <@U2DR97JLA|slackName2> text <@U3DR97JLA|slackName3>";
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
+        final UserData userInText3 = new UserData("uuid3", "U3DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
         //when
         SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
@@ -166,7 +166,7 @@ public class SlackParsedCommandTest {
     @Test
     public void getTextWithoutSlackNames() {
         //given
-        final String text = "@slack text  @slack text @slack";
+        final String text = "<@U1DR97JLA|slackName1> text  <@U1DR97JLA|slackName1> text <@U1DR97JLA|slackName1>";
         //when
         SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, Collections.emptyList());
         //then
@@ -176,7 +176,7 @@ public class SlackParsedCommandTest {
     @Test
     public void getTextWithoutSlackNamesTrimSpaces() {
         //given
-        final String text = "    @slack text  @slack text @slack    ";
+        final String text = "    @slack text  <@U1DR97JLA|slackName1> text <@U1DR97JLA|slackName1>    ";
         //when
         SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, Collections.emptyList());
         //then
@@ -196,17 +196,18 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensWithTwoTokensSuccessfullCases() {
         //given
+        //<@U1DR97JLA|slackName1> <@U2DR97JLA|slackName2>
         final List<String> textList = new ArrayList<>(Arrays.asList(
-                "-t1 @slack1 -t2 @slack2",
-                "-t2 @slack2 -t1 @slack1",
-                "-t1@slack1 -t2@slack2",
-                "text -t2 @slack2 text -t1 @slack1 text",
-                "text -t2 @slack2 text -t1 @slack1 text",
-                "text -t2 @slack2 -t1text @slack1 text"
+                "-t1 <@U1DR97JLA|slackName1> -t2 <@U2DR97JLA|slackName2>",
+                "-t2 <@U2DR97JLA|slackName2> -t1 <@U1DR97JLA|slackName1>",
+                "-t1@<@U1DR97JLA|slackName1> -t2@<@U2DR97JLA|slackName2>",
+                "text -t2 <@U2DR97JLA|slackName2> text -t1 <@U1DR97JLA|slackName1> text",
+                "text -t2 <@U2DR97JLA|slackName2> text -t1 <@U1DR97JLA|slackName1> text",
+                "text -t2 <@U2DR97JLA|slackName2> -t1text <@U1DR97JLA|slackName1> text"
         ));
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2"}));
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2);
 
         final Map<String, UserData> expectedResult = new LinkedHashMap<>();
@@ -226,21 +227,22 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensWithThreeTokensSuccessfullCases() {
         //given
+        //<@U1DR97JLA|slackName1> <@U2DR97JLA|slackName2> <@U3DR97JLA|slackName3>
         final List<String> textList = new ArrayList<>(Arrays.asList(
-                "-t1 @slack1 -t2 @slack2 -t3 @slack3",
-                "-t1@slack1 -t2 @slack2 -t3 @slack3",
-                "-t1@slack1 -t2@slack2 -t3@slack3",
-                "-t1 @slack1 -t3 @slack3 -t2 @slack2",
-                "-t1@slack1 -t3@slack3 -t2@slack2",
-                "-t1@slack1 text -t3@slack3 text -t2@slack2 text",
-                "-t1 text @slack1 text -t3 text @slack3 text -t2 text @slack2 text",
-                "-t1 text@slack1 text -t3 text@slack3 text -t2 text@slack2 text",
-                "text -t2 @slack2 -t1 text @slack1 text -t3 @slack3"
+                "-t1 <@U1DR97JLA|slackName1> -t2 <@U2DR97JLA|slackName2> -t3 <@U3DR97JLA|slackName3>",
+                "-t1<@U1DR97JLA|slackName1> -t2 <@U2DR97JLA|slackName2> -t3 <@U3DR97JLA|slackName3>",
+                "-t1<@U1DR97JLA|slackName1> -t2<@U2DR97JLA|slackName2> -t3<@U3DR97JLA|slackName3>",
+                "-t1 <@U1DR97JLA|slackName1> -t3 <@U3DR97JLA|slackName3> -t2 <@U2DR97JLA|slackName2>",
+                "-t1<@U1DR97JLA|slackName1> -t3<@U3DR97JLA|slackName3> -t2<@U2DR97JLA|slackName2>",
+                "-t1<@U1DR97JLA|slackName1> text -t3<@U3DR97JLA|slackName3> text -t2<@U2DR97JLA|slackName2> text",
+                "-t1 text <@U1DR97JLA|slackName1> text -t3 text <@U3DR97JLA|slackName3> text -t2 text <@U2DR97JLA|slackName2> text",
+                "-t1 text<@U1DR97JLA|slackName1> text -t3 text<@U3DR97JLA|slackName3> text -t2 text<@U2DR97JLA|slackName2> text",
+                "text -t2 <@U2DR97JLA|slackName2> -t1 text <@U1DR97JLA|slackName1> text -t3 <@U3DR97JLA|slackName3>"
         ));
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2", "-t3"}));
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
-        final UserData userInText3 = new UserData("uuid3", "@slack3");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
+        final UserData userInText3 = new UserData("uuid3", "U3DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
 
         final Map<String, UserData> expectedResult = new LinkedHashMap<>();
@@ -261,11 +263,11 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensIfTokensArrayIsEmpty() {
         //given
-        final String text = "text @slack1 text @slack2 text @slack3";
+        final String text = "text <@U1DR97JLA|slackName1> text <@U2DR97JLA|slackName2> text <@U3DR97JLA|slackName3>";
         final Set<String> tokens = new HashSet<>();
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
-        final UserData userInText3 = new UserData("uuid3", "@slack3");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
+        final UserData userInText3 = new UserData("uuid3", "U3DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
 
         final Map<String, UserData> expectedResult = new LinkedHashMap<>();
@@ -281,16 +283,16 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensThrowExceptionIfTokenNotFound() {
         //given
-        final String text = "text-t2@slack2 text@slack1 text";
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
+        final String text = "text-t2<@U2DR97JLA|slackName2> text<@U1DR97JLA|slackName1> text";
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2);
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2"}));
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
 
         //then
         thrown.expect(ParseSlackCommandException.class);
-        thrown.expectMessage(containsString("Token '-t1' didn't find in the string 'text-t2@slack2 text@slack1 text'"));
+        thrown.expectMessage(containsString("Token '-t1' didn't find in the string 'text-t2<@U2DR97JLA|slackName2> text<@U1DR97JLA|slackName1> text'"));
         //when
         slackParsedCommand.getUsersWithTokens(tokens);
     }
@@ -298,15 +300,15 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensErrorIfNotFoundSlackNameForToken() {
         //given
-        final String text = "text-t2 @slack2 text -t1 text";
+        final String text = "text-t2 <@U2DR97JLA|slackName2> text -t1 text";
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2"}));
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //then
         thrown.expect(ParseSlackCommandException.class);
-        thrown.expectMessage(containsString("The text 'text-t2 @slack2 text -t1 text' doesn't " +
+        thrown.expectMessage(containsString("The text 'text-t2 <@U2DR97JLA|slackName2> text -t1 text' doesn't " +
                 "contain slackName for token '-t1'"));
         //when
         slackParsedCommand.getUsersWithTokens(tokens);
@@ -315,16 +317,16 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensError2() {
         //given
-        final String text = "text-t2 -t1@slack2 text text";
+        final String text = "text-t2 -t1<@U2DR97JLA|slackName2> text text";
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2"}));
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
 
         //then
         thrown.expect(ParseSlackCommandException.class);
-        thrown.expectMessage(containsString("The text 'text-t2 -t1@slack2 text text' doesn't contain " +
+        thrown.expectMessage(containsString("The text 'text-t2 -t1<@U2DR97JLA|slackName2> text text' doesn't contain " +
                 "slackName for token '-t2'"));
         //when
         slackParsedCommand.getUsersWithTokens(tokens);
@@ -333,16 +335,16 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensError3() {
         //given
-        final String text = "-t1 @slack1 -t2 -t3 @slack2 -t3 @slack3";
+        final String text = "-t1 <@U1DR97JLA|slackName1> -t2 -t3 <@U2DR97JLA|slackName2> -t3 <@U3DR97JLA|slackName3>";
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2", "-t3"}));
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
-        final UserData userInText3 = new UserData("uuid3", "@slack3");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
+        final UserData userInText3 = new UserData("uuid3", "U3DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2, userInText3);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //then
         thrown.expect(ParseSlackCommandException.class);
-        thrown.expectMessage(containsString("The text '-t1 @slack1 -t2 -t3 @slack2 -t3 @slack3'" +
+        thrown.expectMessage(containsString("The text '-t1 <@U1DR97JLA|slackName1> -t2 -t3 <@U2DR97JLA|slackName2> -t3 <@U3DR97JLA|slackName3>'" +
                 " contains 2 tokens '-t3', but expected 1"));
         //when
         slackParsedCommand.getUsersWithTokens(tokens);
@@ -351,15 +353,15 @@ public class SlackParsedCommandTest {
     @Test
     public void getUsersByTokensErrorTextContainsMoreThanOneToken() {
         //given
-        final String text = "text-t2 -t1@slack2 text -t1 text";
+        final String text = "text-t2 -t1<@U2DR97JLA|slackName2> text -t1 text";
         final Set<String> tokens = new HashSet<>(Arrays.asList(new String[]{"-t1", "-t2"}));
-        final UserData userInText1 = new UserData("uuid1", "@slack1");
-        final UserData userInText2 = new UserData("uuid2", "@slack2");
+        final UserData userInText1 = new UserData("uuid1", "U1DR97JLA");
+        final UserData userInText2 = new UserData("uuid2", "U2DR97JLA");
         final List<UserData> usersInText = Arrays.asList(userInText1, userInText2);
         final SlackParsedCommand slackParsedCommand = new SlackParsedCommand(fromUser, text, usersInText);
         //then
         thrown.expect(ParseSlackCommandException.class);
-        thrown.expectMessage(containsString("The text 'text-t2 -t1@slack2 text -t1 text' contains 2 tokens '-t1'," +
+        thrown.expectMessage(containsString("The text 'text-t2 -t1<@U2DR97JLA|slackName2> text -t1 text' contains 2 tokens '-t1'," +
                 " but expected 1"));
         //when
         slackParsedCommand.getUsersWithTokens(tokens);
