@@ -3,9 +3,9 @@ package ua.com.juja.slack.command.handler.service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ua.com.juja.slack.command.handler.UserBySlackName;
+import ua.com.juja.slack.command.handler.UserBySlackUserId;
 import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
-import ua.com.juja.slack.command.handler.model.UserData;
+import ua.com.juja.slack.command.handler.model.UserDTO;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 public class SlackCommandHandlerService {
 
     private final String escapedSlackUserIdAndName = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
-    private UserBySlackName userBySlackUserId;
+    private UserBySlackUserId userBySlackUserId;
 
     @Inject
-    public SlackCommandHandlerService(UserBySlackName userBySlackUserId) {
+    public SlackCommandHandlerService(UserBySlackUserId userBySlackUserId) {
         this.userBySlackUserId = userBySlackUserId;
     }
 
@@ -72,8 +72,8 @@ public class SlackCommandHandlerService {
     private class SlackCommandToSlackParsedCommandConverter {
 
         private SlackParsedCommand convert(SlackCommand slackCommand) {
-            UserData fromUser;
-            List<UserData> usersInText;
+            UserDTO fromUser;
+            List<UserDTO> usersInText;
 
             if (slackCommand.isHasFromUserIdInText()) {
                 usersInText = receiveUsersBySlackUserId(slackCommand.getAllSlackUserId());
@@ -81,7 +81,7 @@ public class SlackCommandHandlerService {
                 fromUser = getFromUser(usersInText, slackCommand.getFromUserSlackUserId());
                 return new SlackParsedCommand(fromUser, slackCommand.getText(), usersInText);
             } else {
-                List<UserData> allUsers = receiveUsersBySlackUserId(slackCommand.getAllSlackUserId());
+                List<UserDTO> allUsers = receiveUsersBySlackUserId(slackCommand.getAllSlackUserId());
                 fromUser = getFromUser(allUsers, slackCommand.getFromUserSlackUserId());
                 usersInText = deleteFromUser(allUsers, slackCommand.getFromUserSlackUserId());
                 sortUsersByOrderInText(usersInText, slackCommand.getSlackUserIdInText());
@@ -89,16 +89,16 @@ public class SlackCommandHandlerService {
             }
         }
 
-        private List<UserData> receiveUsersBySlackUserId(Set<String> allSlackUserId) {
+        private List<UserDTO> receiveUsersBySlackUserId(Set<String> allSlackUserId) {
 
             log.debug("send slack names: {} to user service", allSlackUserId);
-            List<UserData> result = userBySlackUserId.findUsersBySlackUserId(new ArrayList<>(allSlackUserId));
+            List<UserDTO> result = userBySlackUserId.findUsersBySlackUserId(new ArrayList<>(allSlackUserId));
             checkReceivedUsers(allSlackUserId, result);
 
             return result;
         }
 
-        private void checkReceivedUsers(Set<String> expectedSlackUserId, List<UserData> receivedUsers){
+        private void checkReceivedUsers(Set<String> expectedSlackUserId, List<UserDTO> receivedUsers){
 
             if(expectedSlackUserId.size() != receivedUsers.size()){
                 throw new IllegalArgumentException(String.format("Error. Sent [%d] slackUsersId to UserService, " +
@@ -118,20 +118,20 @@ public class SlackCommandHandlerService {
             }
         }
 
-        private UserData getFromUser(List<UserData> usersInText, String fromUserSlackUserId) {
+        private UserDTO getFromUser(List<UserDTO> usersInText, String fromUserSlackUserId) {
             return usersInText.stream()
                     .filter(user -> user.getSlackUserId().equals(fromUserSlackUserId))
                     .findFirst()
                     .get();
         }
 
-        private List<UserData> deleteFromUser(List<UserData> allUsersList, String fromUserSlackUserId) {
+        private List<UserDTO> deleteFromUser(List<UserDTO> allUsersList, String fromUserSlackUserId) {
             return allUsersList.stream()
                     .filter(user -> user.getSlackUserId() != fromUserSlackUserId)
                     .collect(Collectors.toList());
         }
 
-        private void sortUsersByOrderInText(List<UserData> usersInText, List<String> slackUserIdInText) {
+        private void sortUsersByOrderInText(List<UserDTO> usersInText, List<String> slackUserIdInText) {
             usersInText.sort(Comparator.comparingInt(user -> slackUserIdInText.indexOf(user.getSlackUserId())));
         }
     }

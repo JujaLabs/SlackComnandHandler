@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class SlackParsedCommand {
     private final String escapedUserInSlackCommand = "<@\\w+\\|([a-zA-z0-9._-]){1,21}>";
-    private UserData fromUserData;
+    private UserDTO fromUserData;
     private String text;
-    private List<UserData> usersInText;
+    private List<UserDTO> usersInText;
 
-    public SlackParsedCommand(UserData fromUserData, String text, List<UserData> usersInText) {
+    public SlackParsedCommand(UserDTO fromUserData, String text, List<UserDTO> usersInText) {
         this.fromUserData = fromUserData;
         this.text = text;
         this.usersInText = usersInText;
@@ -32,17 +32,17 @@ public class SlackParsedCommand {
                 fromUserData, text, usersInText.size(), usersInText.toString());
     }
 
-    public List<UserData> getAllUsersInText() {
+    public List<UserDTO> getAllUsersInText() {
         log.debug("SlackParsedCommand get all users in text {}", usersInText.toString());
         return usersInText;
     }
 
-    public UserData getFirstUserFromText() {
+    public UserDTO getFirstUserFromText() {
         if (usersInText.size() == 0) {
             log.warn("The text: '{}' doesn't contain any slack names", text);
             throw new ParseSlackCommandException(String.format("The text '%s' doesn't contain any slack names", text));
         } else {
-            UserData result = usersInText.get(0);
+            UserDTO result = usersInText.get(0);
             log.debug("SlackParsedCommand get firstUser [{}] from text [{}]", result, text);
             return result;
         }
@@ -55,7 +55,7 @@ public class SlackParsedCommand {
         return result;
     }
 
-    public UserData getFromUser() {
+    public UserDTO getFromUser() {
         log.debug("SlackParsedCommand get from User [{}]", fromUserData);
         return fromUserData;
     }
@@ -71,10 +71,10 @@ public class SlackParsedCommand {
         return result;
     }
 
-    public Map<String, UserData> getUsersWithTokens(Set<String> tokens) throws ParseSlackCommandException {
+    public Map<String, UserDTO> getUsersWithTokens(Set<String> tokens) throws ParseSlackCommandException {
         log.debug("Recieve tokens: [{}] for searching. in the text: [{}]", tokens, text);
         List<Token> sortedTokenList = receiveTokensWithPositionInText(tokens);
-        Map<String, UserData> result = findSlackNamesForTokensInText(sortedTokenList);
+        Map<String, UserDTO> result = findSlackNamesForTokensInText(sortedTokenList);
         log.debug("SlackParsedCommand recieved Users with Tokens [{}] from text [{}]", result.toString(), text);
         return result;
     }
@@ -96,8 +96,8 @@ public class SlackParsedCommand {
         return new ArrayList<>(result);
     }
 
-    private Map<String, UserData> findSlackNamesForTokensInText(List<Token> sortedTokenList) {
-        Map<String, UserData> result = new HashMap<>();
+    private Map<String, UserDTO> findSlackNamesForTokensInText(List<Token> sortedTokenList) {
+        Map<String, UserDTO> result = new HashMap<>();
 
         for (int index = 0; index < sortedTokenList.size(); index++) {
             Token currentToken = sortedTokenList.get(index);
@@ -125,8 +125,8 @@ public class SlackParsedCommand {
         return result;
     }
 
-    private void addFoundedSlackToResult(Token currentToken, String foundedSlackName, Map<String, UserData> result) {
-        for (UserData item : usersInText) {
+    private void addFoundedSlackToResult(Token currentToken, String foundedSlackName, Map<String, UserDTO> result) {
+        for (UserDTO item : usersInText) {
             if (item.getSlackUserId().equals(foundedSlackName.substring(foundedSlackName.indexOf('@')+1, foundedSlackName.indexOf('|')))) {
                 log.debug("Found user: {} for token:", item, currentToken.getToken());
                 result.put(currentToken.getToken(), item);

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Nikolay Horushko
@@ -12,7 +13,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public final class UserData {
+public final class UserDTO {
+    @JsonProperty
     private final String uuid;
+    @JsonProperty
     private final String slackUserId;
 }

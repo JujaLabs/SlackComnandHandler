@@ -8,9 +8,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ua.com.juja.slack.command.handler.UserBySlackName;
+import ua.com.juja.slack.command.handler.UserBySlackUserId;
 import ua.com.juja.slack.command.handler.model.SlackParsedCommand;
-import ua.com.juja.slack.command.handler.model.UserData;
+import ua.com.juja.slack.command.handler.model.UserDTO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 public class SlackCommandHandlerServiceTest {
 
     @Mock
-    private UserBySlackName userBySlackName;
+    private UserBySlackUserId userBySlackUserId;
     @Captor
     private ArgumentCaptor<List<String>> captor;
     @Rule
@@ -37,37 +37,37 @@ public class SlackCommandHandlerServiceTest {
 
     private SlackCommandHandlerService slackCommandHandlerService;
 
-    private UserData userFrom;
-    private UserData user1;
-    private UserData user2;
-    private UserData user3;
+    private UserDTO userFrom;
+    private UserDTO user1;
+    private UserDTO user2;
+    private UserDTO user3;
 
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        userFrom = new UserData("AAA000", "UFDR97JLA");
-        user1 = new UserData("AAA111", "U1DR97JLA");
-        user2 = new UserData("AAA222", "U2DR97JLA");
-        user3 = new UserData("AAA333", "U3DR97JLA");
-        slackCommandHandlerService = new SlackCommandHandlerService(userBySlackName);
+        userFrom = new UserDTO("AAA000", "UFDR97JLA");
+        user1 = new UserDTO("AAA111", "U1DR97JLA");
+        user2 = new UserDTO("AAA222", "U2DR97JLA");
+        user3 = new UserDTO("AAA333", "U3DR97JLA");
+        slackCommandHandlerService = new SlackCommandHandlerService(userBySlackUserId);
     }
 
     @Test
     public void getSlackParsedCommandOneSlackInText() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT text.";
-        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user1);
+        final List<UserDTO> responseFromUserService = Arrays.asList(userFrom, user1);
         final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Collections.singletonList(user1));
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
 
         //when
         SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
         //then
-        verify(userBySlackName, times(1)).findUsersBySlackUserId(captor.capture());
+        verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U1DR97JLA", "UFDR97JLA"));
-        verifyNoMoreInteractions(userBySlackName);
+        verifyNoMoreInteractions(userBySlackUserId);
         assertEquals(expected, actual);
     }
 
@@ -75,16 +75,16 @@ public class SlackCommandHandlerServiceTest {
     public void getSlackParsedCommandThreeSlackInText() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text. <@U3DR97JLA|slackName3>";
-        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user1, user2, user3);
+        final List<UserDTO> responseFromUserService = Arrays.asList(userFrom, user1, user2, user3);
         final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, user2, user3));
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
         SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
         //then
-        verify(userBySlackName, times(1)).findUsersBySlackUserId(captor.capture());
+        verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U2DR97JLA", "U1DR97JLA", "UFDR97JLA", "U3DR97JLA"));
-        verifyNoMoreInteractions(userBySlackName);
+        verifyNoMoreInteractions(userBySlackUserId);
         assertEquals(expected, actual);
     }
 
@@ -92,16 +92,16 @@ public class SlackCommandHandlerServiceTest {
     public void getSlackParsedCommandTwoSlackInText() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text.";
-        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user2, user1);
+        final List<UserDTO> responseFromUserService = Arrays.asList(userFrom, user2, user1);
         final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, user2));
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
         SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
         //then
-        verify(userBySlackName, times(1)).findUsersBySlackUserId(captor.capture());
+        verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U2DR97JLA", "U1DR97JLA", "UFDR97JLA"));
-        verifyNoMoreInteractions(userBySlackName);
+        verifyNoMoreInteractions(userBySlackUserId);
         assertEquals(expected, actual);
     }
 
@@ -109,16 +109,16 @@ public class SlackCommandHandlerServiceTest {
     public void getSlackParsedCommandWithoutSlackInText() throws Exception {
         //given
         final String text = "text without slack name TexT text.";
-        final List<UserData> responseFromUserService = Collections.singletonList(userFrom);
+        final List<UserDTO> responseFromUserService = Collections.singletonList(userFrom);
         final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, new ArrayList<>());
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
         SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
         //then
-        verify(userBySlackName).findUsersBySlackUserId(captor.capture());
+        verify(userBySlackUserId).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("UFDR97JLA"));
-        verifyNoMoreInteractions(userBySlackName);
+        verifyNoMoreInteractions(userBySlackUserId);
         assertEquals(expected, actual);
     }
 
@@ -126,17 +126,17 @@ public class SlackCommandHandlerServiceTest {
     public void getSlackParsedCommandIfTextContainsFromUserSlackName() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT text. <@UFDR97JLA|fromSlackName>";
-        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user1);
+        final List<UserDTO> responseFromUserService = Arrays.asList(userFrom, user1);
         final SlackParsedCommand expected = new SlackParsedCommand(userFrom, text, Arrays.asList(user1, userFrom));
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
 
         //when
         SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
         //then
-        verify(userBySlackName, times(1)).findUsersBySlackUserId(captor.capture());
+        verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U1DR97JLA", "UFDR97JLA"));
-        verifyNoMoreInteractions(userBySlackName);
+        verifyNoMoreInteractions(userBySlackUserId);
         assertEquals(expected, actual);
     }
 
@@ -144,9 +144,9 @@ public class SlackCommandHandlerServiceTest {
     public void shouldThrowExceptionIfReceiveWrongCountOfUsersFromUserService() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text.";
-        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user2);
+        final List<UserDTO> responseFromUserService = Arrays.asList(userFrom, user2);
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //then
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Sent [3] slackUsersId to UserService, but received [2] users");
@@ -159,10 +159,10 @@ public class SlackCommandHandlerServiceTest {
     public void shouldThrowExceptionIfReceiveWrongUserFromUserService() throws Exception {
         //given
         final String text = "text <@U1DR97JLA|slackName1> TexT <@U2DR97JLA|slackName2> text.";
-        final UserData wrongUser = new UserData("uuidW", "@UWDR97JLA");
-        final List<UserData> responseFromUserService = Arrays.asList(userFrom, user1, wrongUser);
+        final UserDTO wrongUser = new UserDTO("uuidW", "@UWDR97JLA");
+        final List<UserDTO> responseFromUserService = Arrays.asList(userFrom, user1, wrongUser);
 
-        when(userBySlackName.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
+        when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //then
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Error. User for slackUserId: [U2DR97JLA] didn't find in the List of Users");
