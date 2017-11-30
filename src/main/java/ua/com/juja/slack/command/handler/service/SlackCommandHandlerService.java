@@ -107,7 +107,7 @@ public class SlackCommandHandlerService {
             }
 
             Set<String> actualSlackUserId = receivedUsers.stream()
-                    .map(userData -> userData.getSlackUserId())
+                    .map(userData -> userData.getSlackId())
                     .collect(Collectors.toSet());
 
             for (String slackUserId : expectedSlackUserId) {
@@ -120,19 +120,19 @@ public class SlackCommandHandlerService {
 
         private UserDTO getFromUser(List<UserDTO> usersInText, String fromUserSlackUserId) {
             return usersInText.stream()
-                    .filter(user -> user.getSlackUserId().equals(fromUserSlackUserId))
+                    .filter(user -> user.getSlackId().equals(fromUserSlackUserId))
                     .findFirst()
                     .get();
         }
 
         private List<UserDTO> deleteFromUser(List<UserDTO> allUsersList, String fromUserSlackUserId) {
             return allUsersList.stream()
-                    .filter(user -> user.getSlackUserId() != fromUserSlackUserId)
+                    .filter(user -> user.getSlackId() != fromUserSlackUserId)
                     .collect(Collectors.toList());
         }
 
         private void sortUsersByOrderInText(List<UserDTO> usersInText, List<String> slackUserIdInText) {
-            usersInText.sort(Comparator.comparingInt(user -> slackUserIdInText.indexOf(user.getSlackUserId())));
+            usersInText.sort(Comparator.comparingInt(user -> slackUserIdInText.indexOf(user.getSlackId())));
         }
     }
 }

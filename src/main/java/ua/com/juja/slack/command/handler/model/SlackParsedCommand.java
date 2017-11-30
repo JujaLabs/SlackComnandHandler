@@ -127,7 +127,7 @@ public class SlackParsedCommand {
 
     private void addFoundedSlackToResult(Token currentToken, String foundedSlackName, Map<String, UserDTO> result) {
         for (UserDTO item : usersInText) {
-            if (item.getSlackUserId().equals(foundedSlackName.substring(foundedSlackName.indexOf('@')+1, foundedSlackName.indexOf('|')))) {
+            if (item.getSlackId().equals(foundedSlackName.substring(foundedSlackName.indexOf('@')+1, foundedSlackName.indexOf('|')))) {
                 log.debug("Found user: {} for token:", item, currentToken.getToken());
                 result.put(currentToken.getToken(), item);
             }

@@ -17,5 +17,5 @@ public final class UserDTO {
     @JsonProperty
     private final String uuid;
     @JsonProperty
-    private final String slackUserId;
+    private final String slackId;
 }

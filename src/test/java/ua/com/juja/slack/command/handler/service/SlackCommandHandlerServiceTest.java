@@ -63,7 +63,7 @@ public class SlackCommandHandlerServiceTest {
         when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
 
         //when
-        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
         //then
         verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U1DR97JLA", "UFDR97JLA"));
@@ -80,7 +80,7 @@ public class SlackCommandHandlerServiceTest {
 
         when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
-        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
         //then
         verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U2DR97JLA", "U1DR97JLA", "UFDR97JLA", "U3DR97JLA"));
@@ -97,7 +97,7 @@ public class SlackCommandHandlerServiceTest {
 
         when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
-        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
         //then
         verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U2DR97JLA", "U1DR97JLA", "UFDR97JLA"));
@@ -114,7 +114,7 @@ public class SlackCommandHandlerServiceTest {
 
         when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
         //when
-        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
         //then
         verify(userBySlackUserId).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("UFDR97JLA"));
@@ -132,7 +132,7 @@ public class SlackCommandHandlerServiceTest {
         when(userBySlackUserId.findUsersBySlackUserId(anyListOf(String.class))).thenReturn(responseFromUserService);
 
         //when
-        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        SlackParsedCommand actual = slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
         //then
         verify(userBySlackUserId, times(1)).findUsersBySlackUserId(captor.capture());
         assertThat(captor.getValue(), containsInAnyOrder("U1DR97JLA", "UFDR97JLA"));
@@ -152,7 +152,7 @@ public class SlackCommandHandlerServiceTest {
         thrown.expectMessage("Sent [3] slackUsersId to UserService, but received [2] users");
 
         //when
-        slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
     }
 
     @Test
@@ -168,6 +168,6 @@ public class SlackCommandHandlerServiceTest {
         thrown.expectMessage("Error. User for slackUserId: [U2DR97JLA] didn't find in the List of Users");
 
         //when
-        slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackUserId(), text);
+        slackCommandHandlerService.createSlackParsedCommand(userFrom.getSlackId(), text);
     }
 }
