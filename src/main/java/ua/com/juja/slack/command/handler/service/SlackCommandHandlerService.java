@@ -127,7 +127,7 @@ public class SlackCommandHandlerService {
 
         private List<UserDTO> deleteFromUser(List<UserDTO> allUsersList, String fromUserSlackUserId) {
             return allUsersList.stream()
-                    .filter(user -> user.getSlackId() != fromUserSlackUserId)
+                    .filter(user -> !user.getSlackId().equals(fromUserSlackUserId))
                     .collect(Collectors.toList());
         }
 
